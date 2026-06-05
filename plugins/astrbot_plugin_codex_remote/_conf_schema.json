@@ -1,0 +1,196 @@
+{
+  "bridge_url": {
+    "description": "Local Codex bridge endpoint visible from the AstrBot container.",
+    "type": "string",
+    "default": "http://host.docker.internal:8765/run"
+  },
+  "token_file": {
+    "description": "Token file mounted into the AstrBot container.",
+    "type": "string",
+    "default": "/AstrBot/data/codex_qq_bridge.token"
+  },
+  "secret_drop_file": {
+    "description": "Host-local temporary file used for explicit secret handoff commands such as GitHub PAT delivery. The secret is not echoed back or forwarded to Codex chat history.",
+    "type": "string",
+    "default": "/tmp/github_token"
+  },
+  "allowed_sender_ids": {
+    "description": "QQ sender IDs allowed to trigger Codex. Empty list allows everyone.",
+    "type": "list",
+    "default": []
+  },
+  "handle_prefix": {
+    "description": "Optional message prefix. Empty means every received QQ message is handled.",
+    "type": "string",
+    "default": ""
+  },
+  "mode": {
+    "description": "Codex execution mode.",
+    "type": "string",
+    "options": [
+      "exec",
+      "resume-last"
+    ],
+    "default": "exec"
+  },
+  "timeout_seconds": {
+    "description": "Maximum seconds to wait for Codex.",
+    "type": "int",
+    "default": 900
+  },
+  "ack_message": {
+    "description": "Message sent before Codex starts working. Empty disables it.",
+    "type": "string",
+    "default": "大管家已收到，开始安排处理。"
+  },
+  "progress_enabled": {
+    "description": "Send periodic progress messages while waiting for Codex.",
+    "type": "bool",
+    "default": true
+  },
+  "progress_first_seconds": {
+    "description": "Seconds to wait before sending the first progress message.",
+    "type": "int",
+    "default": 15
+  },
+  "progress_interval_seconds": {
+    "description": "Seconds between progress messages after the first one.",
+    "type": "int",
+    "default": 30
+  },
+  "progress_detail_chars": {
+    "description": "Maximum characters of bridge progress detail included in each progress/status message.",
+    "type": "int",
+    "default": 180
+  },
+  "stream_progress_enabled": {
+    "description": "Let the local bridge push throttled live stdout/stderr/progress updates to QQ instead of relying on periodic status polling.",
+    "type": "bool",
+    "default": true
+  },
+  "stream_progress_interval_seconds": {
+    "description": "Minimum seconds between live progress pushes.",
+    "type": "int",
+    "default": 6
+  },
+  "stream_progress_detail_chars": {
+    "description": "Maximum characters included in each live progress push.",
+    "type": "int",
+    "default": 520
+  },
+  "astrbot_history_enabled": {
+    "description": "Persist QQ remote messages to AstrBot native platform history.",
+    "type": "bool",
+    "default": true
+  },
+  "history_platform_id": {
+    "description": "Platform ID used for AstrBot native history. Empty uses the incoming platform name.",
+    "type": "string",
+    "default": ""
+  },
+  "history_creator": {
+    "description": "AstrBot WebUI username that owns the mirrored QQ sessions.",
+    "type": "string",
+    "default": "astrbot"
+  },
+  "context_history_enabled": {
+    "description": "Send recent AstrBot history to the Codex bridge for better context.",
+    "type": "bool",
+    "default": true
+  },
+  "context_history_messages": {
+    "description": "Number of recent persisted messages included in each Codex request.",
+    "type": "int",
+    "default": 12
+  },
+  "incoming_simplify_chinese": {
+    "description": "Convert incoming QQ text, including STT transcriptions, to Simplified Chinese before command matching and Codex forwarding.",
+    "type": "bool",
+    "default": true
+  },
+  "stt_cleanup_enabled": {
+    "description": "Clean common STT whitespace, punctuation, and filler transcription noise before forwarding to Codex.",
+    "type": "bool",
+    "default": true
+  },
+  "image_input_enabled": {
+    "description": "Forward QQ image messages to Codex as image attachments when local files can be resolved.",
+    "type": "bool",
+    "default": true
+  },
+  "max_image_attachments": {
+    "description": "Maximum number of image attachments forwarded to one Codex request.",
+    "type": "int",
+    "default": 4
+  },
+  "container_data_root": {
+    "description": "AstrBot data root path inside the Docker container.",
+    "type": "string",
+    "default": "/AstrBot/data"
+  },
+  "host_data_root": {
+    "description": "AstrBot data root path on the host, used so the local Codex bridge can read image files.",
+    "type": "string",
+    "default": "/Volumes/ssd/servers/astrbot/data"
+  },
+  "max_reply_chars": {
+    "description": "Maximum characters sent back to QQ.",
+    "type": "int",
+    "default": 3500
+  },
+  "voice_reply_enabled": {
+    "description": "Send the final Codex reply back to QQ as a voice message when synthesis succeeds.",
+    "type": "bool",
+    "default": true
+  },
+  "voice_reply_include_text": {
+    "description": "Also send the final reply as text before the voice message.",
+    "type": "bool",
+    "default": true
+  },
+  "voice_reply_voice": {
+    "description": "Voice id used by the host bridge. Edge examples: zh-TW-HsiaoChenNeural, zh-TW-HsiaoYuNeural, zh-CN-XiaoxiaoNeural. Kokoro examples: zf_017, zf_021, zf_001. macOS say examples: Tingting.",
+    "type": "string",
+    "default": "zh-TW-HsiaoChenNeural"
+  },
+  "voice_reply_engine": {
+    "description": "Host-side voice synthesis engine. Use edge for a softer neural voice, kokoro for open-source neural TTS, or say for macOS fallback.",
+    "type": "string",
+    "options": [
+      "edge",
+      "kokoro",
+      "say"
+    ],
+    "default": "edge"
+  },
+  "voice_reply_rate": {
+    "description": "macOS say speech rate for voice replies.",
+    "type": "int",
+    "default": 190
+  },
+  "voice_reply_speed": {
+    "description": "Kokoro speech speed multiplier for voice replies.",
+    "type": "string",
+    "default": "0.98"
+  },
+  "voice_reply_max_chars": {
+    "description": "Maximum characters included in synthesized QQ voice. Full text can still be sent as text.",
+    "type": "int",
+    "default": 600
+  },
+  "voice_reply_timeout_seconds": {
+    "description": "Maximum seconds to wait for host-side voice synthesis.",
+    "type": "int",
+    "default": 120
+  },
+  "voice_reply_container_dir": {
+    "description": "Voice reply directory inside the AstrBot container.",
+    "type": "string",
+    "default": "/AstrBot/data/codex_voice_replies"
+  },
+  "voice_reply_host_dir": {
+    "description": "Voice reply directory on the host, mapped to voice_reply_container_dir.",
+    "type": "string",
+    "default": "/Volumes/ssd/servers/astrbot/data/codex_voice_replies"
+  }
+}

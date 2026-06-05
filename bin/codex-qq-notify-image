@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ASTRBOT_URL="${ASTRBOT_URL:-http://127.0.0.1:6185}"
+SERVER_ROOT="${CODEX_SERVER_ROOT:-/Volumes/ssd/servers}"
+ASTRBOT_HOME="${ASTRBOT_HOME:-${SERVER_ROOT}/astrbot}"
+API_KEY_FILE="${ASTRBOT_OPENAPI_KEY_FILE:-${ASTRBOT_HOME}/data/codex_openapi_im.key}"
+TARGET_UMO="${CODEX_QQ_NOTIFY_UMO:-default:FriendMessage:FE5A8E0DFC9FFB4B141210C3543F049A}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  codex-qq-notify-image IMAGE_PATH [MESSAGE]
+
+Environment:
+  ASTRBOT_URL               default: http://127.0.0.1:6185
+  ASTRBOT_OPENAPI_KEY_FILE  default: $CODEX_SERVER_ROOT/astrbot/data/codex_openapi_im.key
+  CODEX_QQ_NOTIFY_UMO       default: most recent authorized QQ private session
+
+The AstrBot OpenAPI key needs both im and file scopes.
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -lt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+image_path="$1"
+shift
+message="${*:-}"
+
+if [[ ! -f "$image_path" ]]; then
+  echo "codex-qq-notify-image: image file not found: $image_path" >&2
+  exit 1
+fi
+
+if [[ ! -f "$API_KEY_FILE" ]]; then
+  echo "codex-qq-notify-image: missing AstrBot OpenAPI key file: $API_KEY_FILE" >&2
+  echo "Create an AstrBot API key with im and file scopes, then save only the raw key in that file." >&2
+  exit 1
+fi
+
+api_key="$(tr -d '\r\n' < "$API_KEY_FILE")"
+if [[ -z "$api_key" ]]; then
+  echo "codex-qq-notify-image: API key file is empty: $API_KEY_FILE" >&2
+  exit 1
+fi
+
+mime_type="$(python3 - "$image_path" <<'PY'
+import mimetypes
+import sys
+
+path = sys.argv[1]
+mime_type, _ = mimetypes.guess_type(path)
+print(mime_type or "image/png")
+PY
+)"
+
+if [[ "$mime_type" != image/* ]]; then
+  echo "codex-qq-notify-image: file does not look like an image: $image_path ($mime_type)" >&2
+  exit 1
+fi
+
+upload_body="$(mktemp)"
+send_body="$(mktemp)"
+trap 'rm -f "$upload_body" "$send_body"' EXIT
+
+upload_code="$(
+  curl --silent --show-error --max-time 30 \
+    -o "$upload_body" \
+    -w "%{http_code}" \
+    -H "Authorization: Bearer ${api_key}" \
+    -F "file=@${image_path};type=${mime_type}" \
+    "${ASTRBOT_URL%/}/api/v1/file"
+)"
+
+upload_response="$(cat "$upload_body")"
+if [[ "$upload_code" -lt 200 || "$upload_code" -ge 300 ]]; then
+  echo "codex-qq-notify-image: upload failed with HTTP $upload_code: $upload_response" >&2
+  if [[ "$upload_response" == *"Insufficient API key scope"* ]]; then
+    echo "codex-qq-notify-image: grant the API key both im and file scopes." >&2
+  fi
+  exit 1
+fi
+
+attachment_id="$(python3 - "$upload_response" <<'PY'
+import json
+import sys
+
+try:
+    data = json.loads(sys.argv[1])
+except Exception as exc:
+    raise SystemExit(f"invalid upload response JSON: {exc}")
+
+if data.get("status") != "ok":
+    raise SystemExit(f"upload failed: {data}")
+
+attachment_id = (data.get("data") or {}).get("attachment_id")
+if not attachment_id:
+    raise SystemExit(f"upload response missing attachment_id: {data}")
+
+print(attachment_id)
+PY
+)"
+
+payload="$(python3 - "$TARGET_UMO" "$message" "$attachment_id" <<'PY'
+import json
+import sys
+
+umo, text, attachment_id = sys.argv[1], sys.argv[2], sys.argv[3]
+parts = []
+if text:
+    parts.append({"type": "plain", "text": text})
+parts.append({"type": "image", "attachment_id": attachment_id})
+print(json.dumps({"umo": umo, "message": parts}, ensure_ascii=False))
+PY
+)"
+
+send_code="$(
+  curl --silent --show-error --max-time 20 \
+    -o "$send_body" \
+    -w "%{http_code}" \
+    -H "Content-Type: application/json; charset=utf-8" \
+    -H "Authorization: Bearer ${api_key}" \
+    --data "$payload" \
+    "${ASTRBOT_URL%/}/api/v1/im/message"
+)"
+
+send_response="$(cat "$send_body")"
+if [[ "$send_code" -lt 200 || "$send_code" -ge 300 ]]; then
+  echo "codex-qq-notify-image: send failed with HTTP $send_code: $send_response" >&2
+  exit 1
+fi
+
+status="$(python3 - "$send_response" <<'PY'
+import json
+import sys
+
+try:
+    data = json.loads(sys.argv[1])
+except Exception:
+    print("unknown")
+else:
+    print(data.get("status", "unknown"))
+PY
+)"
+
+if [[ "$status" != "ok" ]]; then
+  echo "codex-qq-notify-image: AstrBot returned: $send_response" >&2
+  exit 1
+fi
+
+echo "sent"

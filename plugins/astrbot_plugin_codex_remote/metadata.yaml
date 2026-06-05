@@ -1,0 +1,9 @@
+name: astrbot_plugin_codex_remote
+desc: Forward QQ messages received by AstrBot to the local Codex CLI.
+version: 0.1.0
+author: Codex
+repo: "https://github.com/jewer3330/codex-local-extensions"
+support_platforms:
+  - qq_official
+  - qq_official_webhook
+  - aiocqhttp

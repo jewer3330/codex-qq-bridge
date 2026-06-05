@@ -1,0 +1,4 @@
+interface:
+  display_name: "QQ Codex Bridge"
+  short_description: "Bridge QQ chat and local Codex runs"
+  default_prompt: "Use $qq-codex to set up QQ messages that invoke Codex and Codex replies that send back to QQ."

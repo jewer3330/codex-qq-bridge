@@ -1,0 +1,36 @@
+{
+  "name": "codex-qq-bridge",
+  "version": "0.1.0",
+  "description": "Bidirectional QQ and AstrBot bridge for running local Codex and sending progress, images, and voice back to QQ.",
+  "author": {
+    "name": "Codex Local"
+  },
+  "repository": "https://github.com/jewer3330/codex-qq-bridge",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "qq",
+    "astrbot",
+    "remote-control",
+    "bridge"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex QQ Bridge",
+    "shortDescription": "Bridge QQ chat and local Codex runs",
+    "longDescription": "Runs a local Node bridge and AstrBot plugin so authorized QQ messages can invoke Codex, see live progress, send image inputs, and receive text, image, or voice replies.",
+    "developerName": "Codex Local",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Remote Control"
+    ],
+    "defaultPrompt": [
+      "Set up QQ so I can call Codex remotely.",
+      "Check whether the QQ bridge is healthy.",
+      "Package QQ progress and voice replies."
+    ]
+  }
+}
+

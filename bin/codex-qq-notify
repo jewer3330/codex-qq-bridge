@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ASTRBOT_URL="${ASTRBOT_URL:-http://127.0.0.1:6185}"
+SERVER_ROOT="${CODEX_SERVER_ROOT:-/Volumes/ssd/servers}"
+ASTRBOT_HOME="${ASTRBOT_HOME:-${SERVER_ROOT}/astrbot}"
+API_KEY_FILE="${ASTRBOT_OPENAPI_KEY_FILE:-${ASTRBOT_HOME}/data/codex_openapi_im.key}"
+TARGET_UMO="${CODEX_QQ_NOTIFY_UMO:-default:FriendMessage:FE5A8E0DFC9FFB4B141210C3543F049A}"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  codex-qq-notify MESSAGE
+
+Environment:
+  ASTRBOT_URL               default: http://127.0.0.1:6185
+  ASTRBOT_OPENAPI_KEY_FILE  default: $CODEX_SERVER_ROOT/astrbot/data/codex_openapi_im.key
+  CODEX_QQ_NOTIFY_UMO       default: most recent authorized QQ private session
+EOF
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -lt 1 ]]; then
+  usage >&2
+  exit 2
+fi
+
+if [[ ! -f "$API_KEY_FILE" ]]; then
+  echo "codex-qq-notify: missing AstrBot OpenAPI key file: $API_KEY_FILE" >&2
+  echo "Create an AstrBot API key with im scope, then save only the raw key in that file." >&2
+  exit 1
+fi
+
+message="$*"
+api_key="$(tr -d '\r\n' < "$API_KEY_FILE")"
+if [[ -z "$api_key" ]]; then
+  echo "codex-qq-notify: API key file is empty: $API_KEY_FILE" >&2
+  exit 1
+fi
+
+payload="$(python3 - "$TARGET_UMO" "$message" <<'PY'
+import json
+import sys
+
+umo, text = sys.argv[1], sys.argv[2]
+print(json.dumps({"umo": umo, "message": text}, ensure_ascii=False))
+PY
+)"
+
+response="$(
+  curl --silent --show-error --fail-with-body --max-time 10 \
+    -H "Content-Type: application/json; charset=utf-8" \
+    -H "Authorization: Bearer ${api_key}" \
+    --data "$payload" \
+    "${ASTRBOT_URL%/}/api/v1/im/message"
+)"
+
+status="$(python3 - "$response" <<'PY'
+import json
+import sys
+
+try:
+    data = json.loads(sys.argv[1])
+except Exception:
+    print("unknown")
+else:
+    print(data.get("status", "unknown"))
+PY
+)"
+
+if [[ "$status" != "ok" ]]; then
+  echo "codex-qq-notify: AstrBot returned: $response" >&2
+  exit 1
+fi
+
+echo "sent"
