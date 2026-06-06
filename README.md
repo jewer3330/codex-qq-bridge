@@ -22,15 +22,25 @@ standalone plugin-style project.
 
 ## Install
 
+macOS/Linux/WSL/Git Bash:
+
 ```bash
 scripts/install-to-codex.sh
+```
+
+Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/install-to-codex.ps1
 ```
 
 The install script copies only source-controlled bridge files into:
 
 - `${CODEX_HOME:-$HOME/.codex}/bin`
+- `${CODEX_HOME:-$HOME/.codex}/plugins/codex-qq-bridge`
 - `${CODEX_HOME:-$HOME/.codex}/plugins/astrbot_plugin_codex_remote`
 - `${CODEX_HOME:-$HOME/.codex}/skills/qq-codex`
+- `${CODEX_HOME:-$HOME/.codex}/.agents/plugins/marketplace.json`
 
 Runtime state stays under `${CODEX_SERVER_ROOT:-$HOME/.codex/servers}/astrbot`.
 
@@ -47,6 +57,25 @@ To also copy the AstrBot runtime plugin during install:
 ```bash
 INSTALL_ASTRBOT_RUNTIME_PLUGIN=1 scripts/install-to-codex.sh
 ```
+
+On Windows, the installer also copies PowerShell helpers:
+
+```powershell
+~\.codex\bin\codex-qq-bridge-up.ps1
+~\.codex\bin\codex-qq-bridge-down.ps1
+~\.codex\bin\codex-qq-bridge-logs.ps1
+~\.codex\bin\codex-qq-notify.ps1 "message"
+```
+
+The Unix shell wrappers still require macOS/Linux/WSL/Git Bash. QQ voice
+conversion currently uses macOS `afconvert`; use WSL with a compatible audio
+converter or keep QQ voice delivery on macOS until the ffmpeg route is added.
+
+## Marketplace
+
+Install scripts register this plugin in the personal Codex marketplace at
+`${CODEX_MARKETPLACE_FILE:-$CODEX_HOME/.agents/plugins/marketplace.json}` with
+source path `./plugins/codex-qq-bridge`.
 
 ## Check
 

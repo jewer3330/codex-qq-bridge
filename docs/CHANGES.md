@@ -11,3 +11,7 @@
   notification wrappers, and `qq-codex` skill together.
 - Made default install and runtime paths portable: `CODEX_HOME` defaults to
   `$HOME/.codex`, and `CODEX_SERVER_ROOT` defaults to `$HOME/.codex/servers`.
+- Added PowerShell installation and basic Windows helpers for bridge start,
+  stop, logs, and text notification.
+- Installers now copy the full plugin source into `.codex/plugins/codex-qq-bridge`
+  and register it in the personal Codex marketplace.

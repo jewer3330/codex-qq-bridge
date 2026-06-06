@@ -6,8 +6,9 @@
 - Codex CLI on `PATH`, or set `CODEX_BIN=/absolute/path/to/codex`.
 - AstrBot with QQ Official Bot, QQ Official Webhook, or aiocqhttp/OneBot adapter.
 - AstrBot OpenAPI with `im` scope for text and `file` scope for images/voice.
-- `screen`, `curl`, `lsof`, `python3`, and standard Unix shell tools.
-- macOS `afconvert` for QQ voice conversion in `codex-qq-notify-voice`.
+- macOS/Linux/WSL shell wrappers use `screen`, `curl`, `lsof`, `python3`, and standard Unix shell tools.
+- Windows installation and basic bridge control use PowerShell 5+ or PowerShell 7+.
+- macOS `afconvert` is required for QQ voice conversion in `codex-qq-notify-voice`.
 
 ## Python / AstrBot Plugin Libraries
 
