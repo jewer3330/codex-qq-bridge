@@ -14,7 +14,7 @@ $AstrBotPluginDir = Join-Path $PluginRoot "astrbot_plugin_codex_remote"
 $CodexPluginDir = Join-Path $PluginRoot "codex-qq-bridge"
 $AstrBotRuntimePlugins = Join-Path $CodexServerRoot "astrbot\data\plugins"
 
-New-Item -ItemType Directory -Force -Path $BinDir, $SkillsDir, $PluginRoot, $AstrBotRuntimePlugins, (Split-Path -Parent $MarketplaceFile) | Out-Null
+New-Item -ItemType Directory -Force -Path $BinDir, $SkillsDir, $PluginRoot, (Split-Path -Parent $MarketplaceFile) | Out-Null
 
 Copy-Item -Recurse -Force (Join-Path $RepoRoot "bin\*") $BinDir
 if (Test-Path $AstrBotPluginDir) { Remove-Item -Recurse -Force $AstrBotPluginDir }
@@ -33,6 +33,7 @@ Get-ChildItem -Force $RepoRoot | Where-Object {
 }
 
 if ($InstallAstrBotRuntimePlugin) {
+  New-Item -ItemType Directory -Force -Path $AstrBotRuntimePlugins | Out-Null
   $RuntimePlugin = Join-Path $AstrBotRuntimePlugins "astrbot_plugin_codex_remote"
   if (Test-Path $RuntimePlugin) { Remove-Item -Recurse -Force $RuntimePlugin }
   Copy-Item -Recurse -Force $AstrBotPluginDir $RuntimePlugin
@@ -54,8 +55,19 @@ $entry = [pscustomobject]@{
   policy = [pscustomobject]@{ installation = "AVAILABLE"; authentication = "ON_INSTALL" }
   category = "Productivity"
 }
-$plugins = @($marketplace.plugins | Where-Object { $_.name -ne $entry.name })
-$marketplace.plugins = @($plugins + $entry)
+$plugins = @($marketplace.plugins)
+$updated = $false
+for ($i = 0; $i -lt $plugins.Count; $i++) {
+  if ($plugins[$i].name -eq $entry.name) {
+    $plugins[$i] = $entry
+    $updated = $true
+    break
+  }
+}
+if (-not $updated) {
+  $plugins += $entry
+}
+$marketplace.plugins = @($plugins)
 $marketplace | ConvertTo-Json -Depth 10 | Set-Content -Encoding UTF8 -Path $MarketplaceFile
 
 Write-Host "Installed Codex QQ bridge source into $CodexHome"

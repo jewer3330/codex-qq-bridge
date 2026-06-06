@@ -34,7 +34,8 @@ Windows PowerShell:
 powershell -ExecutionPolicy Bypass -File scripts/install-to-codex.ps1
 ```
 
-The install script copies only source-controlled bridge files into:
+The install script is lightweight: it copies only source-controlled bridge files
+and marketplace metadata into:
 
 - `${CODEX_HOME:-$HOME/.codex}/bin`
 - `${CODEX_HOME:-$HOME/.codex}/plugins/codex-qq-bridge`
@@ -42,7 +43,10 @@ The install script copies only source-controlled bridge files into:
 - `${CODEX_HOME:-$HOME/.codex}/skills/qq-codex`
 - `${CODEX_HOME:-$HOME/.codex}/.agents/plugins/marketplace.json`
 
-Runtime state stays under `${CODEX_SERVER_ROOT:-$HOME/.codex/servers}/astrbot`.
+It does not require Docker and does not create service runtime data by default.
+AstrBot login state, tokens, plugins, attachments, and databases belong under
+`${CODEX_SERVER_ROOT:-$HOME/.codex/servers}/astrbot` only when you actually run
+or connect an AstrBot service.
 
 To use a different installation root:
 
@@ -52,7 +56,7 @@ CODEX_SERVER_ROOT=/srv/codex \
 scripts/install-to-codex.sh
 ```
 
-To also copy the AstrBot runtime plugin during install:
+To also copy the AstrBot runtime plugin during install, explicitly opt in:
 
 ```bash
 INSTALL_ASTRBOT_RUNTIME_PLUGIN=1 scripts/install-to-codex.sh
@@ -67,9 +71,10 @@ On Windows, the installer also copies PowerShell helpers:
 ~\.codex\bin\codex-qq-notify.ps1 "message"
 ```
 
-The Unix shell wrappers still require macOS/Linux/WSL/Git Bash. QQ voice
-conversion currently uses macOS `afconvert`; use WSL with a compatible audio
-converter or keep QQ voice delivery on macOS until the ffmpeg route is added.
+The Unix shell wrappers still require macOS/Linux/WSL/Git Bash. Docker is only
+needed if your chosen AstrBot deployment uses Docker. QQ voice conversion
+currently uses macOS `afconvert`; use WSL with a compatible audio converter or
+keep QQ voice delivery on macOS until the ffmpeg route is added.
 
 ## Marketplace
 

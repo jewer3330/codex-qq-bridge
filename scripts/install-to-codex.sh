@@ -10,7 +10,6 @@ MARKETPLACE_FILE="${CODEX_MARKETPLACE_FILE:-${CODEX_HOME}/.agents/plugins/market
 INSTALL_ASTRBOT_RUNTIME_PLUGIN="${INSTALL_ASTRBOT_RUNTIME_PLUGIN:-0}"
 
 mkdir -p "${CODEX_HOME}/bin" "${CODEX_HOME}/plugins" "${CODEX_HOME}/skills"
-mkdir -p "${CODEX_SERVER_ROOT}/astrbot/data/plugins"
 mkdir -p "$(dirname "$MARKETPLACE_FILE")"
 
 rsync -a --exclude '__pycache__/' "${REPO_ROOT}/bin/" "${CODEX_HOME}/bin/"
@@ -35,6 +34,7 @@ chmod +x \
   "${CODEX_HOME}/skills/qq-codex/scripts/install-astrbot-plugin.sh"
 
 if [[ "$INSTALL_ASTRBOT_RUNTIME_PLUGIN" == "1" ]]; then
+  mkdir -p "${CODEX_SERVER_ROOT}/astrbot/data/plugins"
   CODEX_HOME="$CODEX_HOME" CODEX_SERVER_ROOT="$CODEX_SERVER_ROOT" \
     "${CODEX_HOME}/skills/qq-codex/scripts/install-astrbot-plugin.sh"
 fi
@@ -56,8 +56,12 @@ if marketplace.exists():
 else:
     data = {"name": "personal", "interface": {"displayName": "Personal"}, "plugins": []}
 plugins = data.setdefault("plugins", [])
-plugins[:] = [plugin for plugin in plugins if plugin.get("name") != entry["name"]]
-plugins.append(entry)
+for index, plugin in enumerate(plugins):
+    if plugin.get("name") == entry["name"]:
+        plugins[index] = entry
+        break
+else:
+    plugins.append(entry)
 marketplace.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 PY
 

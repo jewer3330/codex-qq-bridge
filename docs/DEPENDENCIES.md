@@ -10,6 +10,9 @@
 - Windows installation and basic bridge control use PowerShell 5+ or PowerShell 7+.
 - macOS `afconvert` is required for QQ voice conversion in `codex-qq-notify-voice`.
 
+Docker is not required to install this plugin. It is only needed when the
+selected AstrBot deployment runs as a Docker service.
+
 ## Python / AstrBot Plugin Libraries
 
 - `astrbot.api` modules supplied by the AstrBot runtime.

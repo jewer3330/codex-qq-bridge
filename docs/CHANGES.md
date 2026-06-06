@@ -15,3 +15,5 @@
   stop, logs, and text notification.
 - Installers now copy the full plugin source into `.codex/plugins/codex-qq-bridge`
   and register it in the personal Codex marketplace.
+- Made install lightweight: service runtime directories are created only when
+  explicitly installing or running the AstrBot runtime plugin.
