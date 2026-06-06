@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ASTRBOT_URL="${ASTRBOT_URL:-http://127.0.0.1:6185}"
-SERVER_ROOT="${CODEX_SERVER_ROOT:-/Volumes/ssd/servers}"
+SERVER_ROOT="${CODEX_SERVER_ROOT:-${HOME}/.codex/servers}"
 ASTRBOT_HOME="${ASTRBOT_HOME:-${SERVER_ROOT}/astrbot}"
 API_KEY_FILE="${ASTRBOT_OPENAPI_KEY_FILE:-${ASTRBOT_HOME}/data/codex_openapi_im.key}"
 TARGET_UMO="${CODEX_QQ_NOTIFY_UMO:-default:FriendMessage:FE5A8E0DFC9FFB4B141210C3543F049A}"

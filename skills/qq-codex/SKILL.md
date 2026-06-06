@@ -18,33 +18,37 @@ Codex -> notify wrapper -> bot framework OpenAPI -> QQ
 
 Prefer AstrBot for production-like local setups because it owns QQ login, reconnects, plugin loading, attachments, and OpenAPI message sending. Use OneBot/NapCat/Lagrange only when the target environment already standardizes on OneBot.
 
-## Current Local Pattern
+## Installed Layout
 
-- Transport service: `/Volumes/ssd/servers/astrbot`
-- Reusable AstrBot plugin source: `/Volumes/ssd/work/.codex/plugins/astrbot_plugin_codex_remote`
-- AstrBot plugin: `/Volumes/ssd/servers/astrbot/data/plugins/astrbot_plugin_codex_remote`
-- Codex bridge source: `/Volumes/ssd/work/.codex/bin/codex_qq_bridge.mjs`
-- Bridge wrappers: `/Volumes/ssd/work/.codex/bin/codex-qq-bridge-up`, `codex-qq-bridge-down`, `codex-qq-bridge-logs`
-- Codex to QQ text: `/Volumes/ssd/work/.codex/bin/codex-qq-notify`
-- Codex to QQ image: `/Volumes/ssd/work/.codex/bin/codex-qq-notify-image`
-- Codex to QQ voice: `/Volumes/ssd/work/.codex/bin/codex-qq-notify-voice`
-- Shared status: `/Volumes/ssd/work/.codex/bin/codex-self`
-- Bridge token: `/Volumes/ssd/servers/astrbot/data/codex_qq_bridge.token`
-- AstrBot OpenAPI key: `/Volumes/ssd/servers/astrbot/data/codex_openapi_im.key`
+Defaults:
 
-For details, read `references/astrbot-bridge.md`.
+- `CODEX_HOME=${HOME}/.codex`
+- `CODEX_SERVER_ROOT=${HOME}/.codex/servers`
+- Transport service: `${CODEX_SERVER_ROOT}/astrbot`
+- Reusable AstrBot plugin source: `${CODEX_HOME}/plugins/astrbot_plugin_codex_remote`
+- AstrBot plugin runtime copy: `${CODEX_SERVER_ROOT}/astrbot/data/plugins/astrbot_plugin_codex_remote`
+- Codex bridge source: `${CODEX_HOME}/bin/codex_qq_bridge.mjs`
+- Bridge wrappers: `${CODEX_HOME}/bin/codex-qq-bridge-up`, `codex-qq-bridge-down`, `codex-qq-bridge-logs`
+- Codex to QQ text: `${CODEX_HOME}/bin/codex-qq-notify`
+- Codex to QQ image: `${CODEX_HOME}/bin/codex-qq-notify-image`
+- Codex to QQ voice: `${CODEX_HOME}/bin/codex-qq-notify-voice`
+- Shared status: `${CODEX_HOME}/bin/codex-self` when installed by the wider local extensions bundle
+- Bridge token: `${CODEX_SERVER_ROOT}/astrbot/data/codex_qq_bridge.token`
+- AstrBot OpenAPI key: `${CODEX_SERVER_ROOT}/astrbot/data/codex_openapi_im.key`
+
+Override `CODEX_HOME` and `CODEX_SERVER_ROOT` for custom disks or service roots. For details, read `references/astrbot-bridge.md`.
 
 Install or refresh the AstrBot plugin runtime copy with:
 
 ```bash
-/Volumes/ssd/work/.codex/skills/qq-codex/scripts/install-astrbot-plugin.sh
+${CODEX_HOME:-$HOME/.codex}/skills/qq-codex/scripts/install-astrbot-plugin.sh
 ```
 
 ## Storage Rules
 
-- Put bridge source, wrappers, reusable scripts, and this skill under `/Volumes/ssd/work/.codex`.
-- Put reusable plugin source under `/Volumes/ssd/work/.codex/plugins`; copy or mount it into the service runtime.
-- Put Docker Compose stacks, bot configs, tokens, SQLite files, plugins, attachments, and runtime logs under `/Volumes/ssd/servers/<service>`.
+- Put bridge source, wrappers, reusable scripts, and this skill under `${CODEX_HOME}`.
+- Put reusable plugin source under `${CODEX_HOME}/plugins`; copy or mount it into the service runtime.
+- Put Docker Compose stacks, bot configs, tokens, SQLite files, plugins, attachments, and runtime logs under `${CODEX_SERVER_ROOT}/<service>`.
 - Do not put service state, uploads, bot secrets, or container volumes in `.codex`.
 - If packaging for others, make paths configurable with environment variables while keeping these defaults documented.
 
@@ -54,7 +58,7 @@ Install or refresh the AstrBot plugin runtime copy with:
 2. Start the Codex bridge:
 
 ```bash
-/Volumes/ssd/work/.codex/bin/codex-qq-bridge-up
+${CODEX_HOME:-$HOME/.codex}/bin/codex-qq-bridge-up
 ```
 
 The wrapper defaults to `CODEX_QQ_BRIDGE_HOST=0.0.0.0` so Docker-hosted AstrBot can reach the host bridge. Use `CODEX_QQ_BRIDGE_HOST=127.0.0.1` when the transport runs on the host and no container access is needed.
@@ -74,19 +78,19 @@ curl -s http://127.0.0.1:8765/status
 Use text notification for status, completion, blockers, and short answers:
 
 ```bash
-/Volumes/ssd/work/.codex/bin/codex-qq-notify "任务完成：已经提交并推送。"
+${CODEX_HOME:-$HOME/.codex}/bin/codex-qq-notify "任务完成：已经提交并推送。"
 ```
 
 Use image notification when an artifact should be visible in QQ:
 
 ```bash
-/Volumes/ssd/work/.codex/bin/codex-qq-notify-image /absolute/path/output.png "图片生成好了"
+${CODEX_HOME:-$HOME/.codex}/bin/codex-qq-notify-image /absolute/path/output.png "图片生成好了"
 ```
 
 Use voice notification when the user asks for voice replies:
 
 ```bash
-/Volumes/ssd/work/.codex/bin/codex-qq-notify-voice /absolute/path/reply.wav "语音回复"
+${CODEX_HOME:-$HOME/.codex}/bin/codex-qq-notify-voice /absolute/path/reply.wav "语音回复"
 ```
 
 Set `CODEX_QQ_NOTIFY_UMO` when sending to a specific QQ session. The default should point at the most recent authorized private session for the local machine.
@@ -116,7 +120,7 @@ The bridge should call Codex CLI with a trusted local policy only after the allo
 ## Troubleshooting
 
 - If QQ messages arrive but no Codex work starts, check the AstrBot plugin config and bridge token path.
-- If Codex runs but QQ sees no progress, inspect `stream_progress_enabled`, AstrBot OpenAPI key scope, and `/Volumes/ssd/work/.codex/bin/codex-qq-bridge-logs`.
-- If images are ignored, ensure the plugin maps `/AstrBot/data` to `/Volumes/ssd/servers/astrbot/data` and passes readable host paths to Codex.
+- If Codex runs but QQ sees no progress, inspect `stream_progress_enabled`, AstrBot OpenAPI key scope, and `${CODEX_HOME}/bin/codex-qq-bridge-logs`.
+- If images are ignored, ensure the plugin maps `/AstrBot/data` to `${CODEX_SERVER_ROOT}/astrbot/data` and passes readable host paths to Codex.
 - If proactive QQ messages fail, verify `ASTRBOT_URL`, `ASTRBOT_OPENAPI_KEY_FILE`, and `CODEX_QQ_NOTIFY_UMO`.
 - If the user asks for a reusable packaging pass, update this skill and the bridge wrappers together, then commit and push the `.codex` repo.

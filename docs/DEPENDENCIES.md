@@ -3,7 +3,7 @@
 ## Runtime
 
 - Node.js 20+ for `bin/codex_qq_bridge.mjs`.
-- Codex CLI, defaulting to `/Applications/Codex.app/Contents/Resources/codex`.
+- Codex CLI on `PATH`, or set `CODEX_BIN=/absolute/path/to/codex`.
 - AstrBot with QQ Official Bot, QQ Official Webhook, or aiocqhttp/OneBot adapter.
 - AstrBot OpenAPI with `im` scope for text and `file` scope for images/voice.
 - `screen`, `curl`, `lsof`, `python3`, and standard Unix shell tools.
@@ -35,4 +35,3 @@ The bridge intentionally uses only Node built-in modules:
 - Kokoro local TTS through `codex_kokoro_tts.py` from the voice stack.
 - IndexTTS2 through `index-tts2-say` from the voice stack.
 - macOS `say` as a fallback.
-

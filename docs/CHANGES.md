@@ -9,4 +9,5 @@
 - Documented dependencies, runtime boundaries, and install/check flows.
 - Packaged the AstrBot plugin source, local Node bridge, text/image/voice QQ
   notification wrappers, and `qq-codex` skill together.
-
+- Made default install and runtime paths portable: `CODEX_HOME` defaults to
+  `$HOME/.codex`, and `CODEX_SERVER_ROOT` defaults to `$HOME/.codex/servers`.

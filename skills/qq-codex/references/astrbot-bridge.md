@@ -17,20 +17,21 @@ This reference describes the local, reusable QQ-Codex bridge pattern.
 Keep these defaults portable by allowing environment overrides:
 
 ```text
-CODEX_HOME=/Volumes/ssd/work/.codex
-ASTRBOT_HOME=/Volumes/ssd/servers/astrbot
+CODEX_HOME=$HOME/.codex
+CODEX_SERVER_ROOT=$HOME/.codex/servers
+ASTRBOT_HOME=$CODEX_SERVER_ROOT/astrbot
 CODEX_QQ_BRIDGE_URL=http://127.0.0.1:8765
 CODEX_QQ_BRIDGE_HOST=0.0.0.0
 ASTRBOT_URL=http://127.0.0.1:6185
-CODEX_QQ_TOKEN_FILE=/Volumes/ssd/servers/astrbot/data/codex_qq_bridge.token
-ASTRBOT_OPENAPI_KEY_FILE=/Volumes/ssd/servers/astrbot/data/codex_openapi_im.key
+CODEX_QQ_TOKEN_FILE=$ASTRBOT_HOME/data/codex_qq_bridge.token
+ASTRBOT_OPENAPI_KEY_FILE=$ASTRBOT_HOME/data/codex_openapi_im.key
 CODEX_QQ_NOTIFY_UMO=<AstrBot unified message origin>
 CODEX_QQ_SECRET_DROP_FILE=/tmp/github_token
 ```
 
 `CODEX_QQ_TOKEN_FILE` is shared between the AstrBot plugin and the bridge. `ASTRBOT_OPENAPI_KEY_FILE` is used by the notify wrappers and needs `im` scope for text, plus `file` scope for image or voice attachments.
 
-Keep reusable plugin source in `.codex/plugins/astrbot_plugin_codex_remote`. Copy or mount that source into `/Volumes/ssd/servers/astrbot/data/plugins/astrbot_plugin_codex_remote` for the running service.
+Keep reusable plugin source in `${CODEX_HOME}/plugins/astrbot_plugin_codex_remote`. Copy or mount that source into `${ASTRBOT_HOME}/data/plugins/astrbot_plugin_codex_remote` for the running service.
 
 The bundled helper performs that copy:
 
@@ -87,10 +88,10 @@ Keep this API local unless an explicit reverse proxy and authentication design e
 
 ## Packaging Checklist
 
-- [ ] Bridge source and wrappers live under `.codex/bin`.
-- [ ] The reusable skill lives under `.codex/skills/qq-codex`.
-- [ ] Reusable AstrBot plugin source lives under `.codex/plugins/astrbot_plugin_codex_remote`.
-- [ ] Transport service, plugin runtime data, tokens, and attachments live under `/Volumes/ssd/servers/astrbot`.
+- [ ] Bridge source and wrappers live under `${CODEX_HOME}/bin`.
+- [ ] The reusable skill lives under `${CODEX_HOME}/skills/qq-codex`.
+- [ ] Reusable AstrBot plugin source lives under `${CODEX_HOME}/plugins/astrbot_plugin_codex_remote`.
+- [ ] Transport service, plugin runtime data, tokens, and attachments live under `${CODEX_SERVER_ROOT}/astrbot`.
 - [ ] Start/stop/log wrappers exist for the bridge.
 - [ ] The plugin or transport has a QQ user/group allow-list.
 - [ ] The bridge returns immediate acknowledgement, status, cancel, streaming progress, and final answer.

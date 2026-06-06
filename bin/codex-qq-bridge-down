@@ -7,6 +7,7 @@ ROOT="${CODEX_HOME:-$DEFAULT_ROOT}"
 SCREEN_NAME="codex-qq-bridge"
 PORT="${CODEX_QQ_BRIDGE_PORT:-8765}"
 BRIDGE="${ROOT}/bin/codex_qq_bridge.mjs"
+CODEX_BIN_PATTERN="${CODEX_BIN:-codex}"
 
 screen -S "$SCREEN_NAME" -X quit >/dev/null 2>&1 || true
 bridge_pids="$(pgrep -f "$BRIDGE" || true)"
@@ -14,7 +15,7 @@ if [[ -n "$bridge_pids" ]]; then
   pkill -TERM -P "$bridge_pids" >/dev/null 2>&1 || true
   kill $bridge_pids >/dev/null 2>&1 || true
 fi
-pkill -TERM -f "/Applications/Codex.app/Contents/Resources/codex -a never -s danger-full-access exec --skip-git-repo-check -C ${ROOT}" >/dev/null 2>&1 || true
+pkill -TERM -f "${CODEX_BIN_PATTERN} .*exec .* -C ${ROOT}" >/dev/null 2>&1 || true
 pids="$(lsof -tiTCP:"$PORT" -sTCP:LISTEN || true)"
 if [[ -n "$pids" ]]; then
   kill $pids

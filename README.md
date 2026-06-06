@@ -18,7 +18,7 @@ standalone plugin-style project.
   `codex-qq-notify`, `codex-qq-notify-image`, and `codex-qq-notify-voice`.
 - Added the reusable Codex skill under `skills/qq-codex`.
 - Added install and check scripts for promoting this source tree into a local
-  `/Volumes/ssd/work/.codex` installation.
+  Codex installation.
 
 ## Install
 
@@ -28,11 +28,25 @@ scripts/install-to-codex.sh
 
 The install script copies only source-controlled bridge files into:
 
-- `/Volumes/ssd/work/.codex/bin`
-- `/Volumes/ssd/work/.codex/plugins/astrbot_plugin_codex_remote`
-- `/Volumes/ssd/work/.codex/skills/qq-codex`
+- `${CODEX_HOME:-$HOME/.codex}/bin`
+- `${CODEX_HOME:-$HOME/.codex}/plugins/astrbot_plugin_codex_remote`
+- `${CODEX_HOME:-$HOME/.codex}/skills/qq-codex`
 
-Runtime state stays under `/Volumes/ssd/servers/astrbot`.
+Runtime state stays under `${CODEX_SERVER_ROOT:-$HOME/.codex/servers}/astrbot`.
+
+To use a different installation root:
+
+```bash
+CODEX_HOME=/opt/codex \
+CODEX_SERVER_ROOT=/srv/codex \
+scripts/install-to-codex.sh
+```
+
+To also copy the AstrBot runtime plugin during install:
+
+```bash
+INSTALL_ASTRBOT_RUNTIME_PLUGIN=1 scripts/install-to-codex.sh
+```
 
 ## Check
 
@@ -47,5 +61,5 @@ schema JSON. It does not require QQ login.
 
 Do not commit QQ login state, OpenAPI keys, bridge tokens, AstrBot databases,
 attachments, generated voice files, or logs. Keep those under
-`/Volumes/ssd/servers/astrbot` or another server-owned runtime directory.
-
+`${CODEX_SERVER_ROOT:-$HOME/.codex/servers}/astrbot` or another server-owned
+runtime directory.

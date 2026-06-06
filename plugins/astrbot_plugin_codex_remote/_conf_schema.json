@@ -131,7 +131,7 @@
   "host_data_root": {
     "description": "AstrBot data root path on the host, used so the local Codex bridge can read image files.",
     "type": "string",
-    "default": "/Volumes/ssd/servers/astrbot/data"
+    "default": "~/.codex/servers/astrbot/data"
   },
   "max_reply_chars": {
     "description": "Maximum characters sent back to QQ.",
@@ -191,6 +191,6 @@
   "voice_reply_host_dir": {
     "description": "Voice reply directory on the host, mapped to voice_reply_container_dir.",
     "type": "string",
-    "default": "/Volumes/ssd/servers/astrbot/data/codex_voice_replies"
+    "default": "~/.codex/servers/astrbot/data/codex_voice_replies"
   }
 }

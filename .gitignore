@@ -1,10 +1,10 @@
 __pycache__/
 *.py[cod]
 .venv/
+.codegraph/
 node_modules/
 logs/
 *.log
 *.token
 *.key
 .DS_Store
-

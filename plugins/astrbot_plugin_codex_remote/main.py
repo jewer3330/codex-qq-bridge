@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import mimetypes
+import os
 import re
 import time
 import urllib.error
@@ -373,8 +374,9 @@ class CodexRemotePlugin(Star):
         if not value:
             return ""
         container_root = str(self.config.get("container_data_root") or "/AstrBot/data").rstrip("/")
-        host_root = str(
-            self.config.get("host_data_root") or "/Volumes/ssd/servers/astrbot/data"
+        host_root = self._path_config(
+            "host_data_root",
+            Path.home() / ".codex" / "servers" / "astrbot" / "data",
         ).rstrip("/")
         if value == container_root:
             return host_root
@@ -472,9 +474,9 @@ class CodexRemotePlugin(Star):
 
         payload = {
             "text": value,
-            "host_dir": str(
-                self.config.get("voice_reply_host_dir")
-                or "/Volumes/ssd/servers/astrbot/data/codex_voice_replies"
+            "host_dir": self._path_config(
+                "voice_reply_host_dir",
+                Path.home() / ".codex" / "servers" / "astrbot" / "data" / "codex_voice_replies",
             ),
             "container_dir": str(
                 self.config.get("voice_reply_container_dir")
@@ -639,6 +641,10 @@ class CodexRemotePlugin(Star):
             return f"Codex 桥调用失败: {exc}"
 
         return str(data.get("reply") or data)
+
+    def _path_config(self, key: str, default: Path) -> str:
+        value = str(self.config.get(key) or default)
+        return str(Path(os.path.expandvars(value)).expanduser())
 
     def _trim_reply(self, reply: str) -> str:
         max_chars = int(self.config.get("max_reply_chars") or 3500)

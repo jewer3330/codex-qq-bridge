@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 DEFAULT_CODEX_HOME="$(cd "${SKILL_DIR}/../.." && pwd)"
 CODEX_HOME="${CODEX_HOME:-$DEFAULT_CODEX_HOME}"
-SERVER_ROOT="${CODEX_SERVER_ROOT:-/Volumes/ssd/servers}"
+SERVER_ROOT="${CODEX_SERVER_ROOT:-${HOME}/.codex/servers}"
 ASTRBOT_HOME="${ASTRBOT_HOME:-${SERVER_ROOT}/astrbot}"
 
 SOURCE_DIR="${CODEX_QQ_ASTRBOT_PLUGIN_SOURCE:-${CODEX_HOME}/plugins/astrbot_plugin_codex_remote}"
