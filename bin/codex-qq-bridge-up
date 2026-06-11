@@ -4,7 +4,15 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DEFAULT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 ROOT="${CODEX_HOME:-$DEFAULT_ROOT}"
-SERVER_ROOT="${CODEX_SERVER_ROOT:-${HOME}/.codex/servers}"
+if [[ -z "${CODEX_SERVER_ROOT:-}" ]]; then
+  if [[ "$ROOT" == */work/.codex ]]; then
+    SERVER_ROOT="$(cd "${ROOT}/../.." && pwd)/servers"
+  else
+    SERVER_ROOT="${ROOT}/servers"
+  fi
+else
+  SERVER_ROOT="$CODEX_SERVER_ROOT"
+fi
 NODE="${NODE:-node}"
 BRIDGE="${ROOT}/bin/codex_qq_bridge.mjs"
 TOKEN_FILE="${CODEX_QQ_TOKEN_FILE:-${SERVER_ROOT}/astrbot/data/codex_qq_bridge.token}"
@@ -13,6 +21,7 @@ LOG_FILE="${LOG_DIR}/codex_qq_bridge_node.log"
 SCREEN_NAME="codex-qq-bridge"
 HOST="${CODEX_QQ_BRIDGE_HOST:-0.0.0.0}"
 PORT="${CODEX_QQ_BRIDGE_PORT:-8765}"
+export CODEX_HOME="$ROOT" CODEX_SERVER_ROOT="$SERVER_ROOT"
 
 mkdir -p "$LOG_DIR" "$(dirname "$TOKEN_FILE")"
 

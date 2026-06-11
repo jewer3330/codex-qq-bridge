@@ -5,7 +5,15 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILL_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 DEFAULT_CODEX_HOME="$(cd "${SKILL_DIR}/../.." && pwd)"
 CODEX_HOME="${CODEX_HOME:-$DEFAULT_CODEX_HOME}"
-SERVER_ROOT="${CODEX_SERVER_ROOT:-${HOME}/.codex/servers}"
+if [[ -z "${CODEX_SERVER_ROOT:-}" ]]; then
+  if [[ "$CODEX_HOME" == */work/.codex ]]; then
+    SERVER_ROOT="$(cd "${CODEX_HOME}/../.." && pwd)/servers"
+  else
+    SERVER_ROOT="${CODEX_HOME}/servers"
+  fi
+else
+  SERVER_ROOT="$CODEX_SERVER_ROOT"
+fi
 ASTRBOT_HOME="${ASTRBOT_HOME:-${SERVER_ROOT}/astrbot}"
 
 SOURCE_DIR="${CODEX_QQ_ASTRBOT_PLUGIN_SOURCE:-${CODEX_HOME}/plugins/astrbot_plugin_codex_remote}"

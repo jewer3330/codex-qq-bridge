@@ -2,11 +2,22 @@
 set -euo pipefail
 
 ASTRBOT_URL="${ASTRBOT_URL:-http://127.0.0.1:6185}"
-SERVER_ROOT="${CODEX_SERVER_ROOT:-${HOME}/.codex/servers}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_CODEX_HOME="$(cd "${SCRIPT_DIR}/.." && pwd)"
+CODEX_HOME="${CODEX_HOME:-$DEFAULT_CODEX_HOME}"
+if [[ -z "${CODEX_SERVER_ROOT:-}" ]]; then
+  if [[ "$CODEX_HOME" == */work/.codex ]]; then
+    CODEX_SERVER_ROOT="$(cd "${CODEX_HOME}/../.." && pwd)/servers"
+  else
+    CODEX_SERVER_ROOT="${CODEX_HOME}/servers"
+  fi
+fi
+SERVER_ROOT="$CODEX_SERVER_ROOT"
 ASTRBOT_HOME="${ASTRBOT_HOME:-${SERVER_ROOT}/astrbot}"
 API_KEY_FILE="${ASTRBOT_OPENAPI_KEY_FILE:-${ASTRBOT_HOME}/data/codex_openapi_im.key}"
 TARGET_UMO="${CODEX_QQ_NOTIFY_UMO:-default:FriendMessage:FE5A8E0DFC9FFB4B141210C3543F049A}"
 QQ_VOICE_SAMPLE_RATE="${CODEX_QQ_VOICE_SAMPLE_RATE:-24000}"
+export CODEX_HOME CODEX_SERVER_ROOT
 
 usage() {
   cat <<'EOF'
